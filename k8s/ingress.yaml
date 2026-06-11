@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: petclinic-ingress
+  namespace: petclinic
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: petclinic.local
+      http:
+        paths:
+          - path: /petclinic/
+            pathType: Prefix
+            backend:
+              service:
+                name: petclinic-backend
+                port:
+                  number: 9966
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: petclinic-frontend
+                port:
+                  number: 80
