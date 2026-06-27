@@ -44,12 +44,15 @@ jobs:
 
   deploy:
     needs: build-and-push
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
-      - name: Deploy to k3d cluster
-        run: |
-          kubectl config use-context k3d-petclinic
-          kubectl rollout restart deployment/petclinic-backend -n petclinic
-          kubectl rollout restart deployment/petclinic-frontend -n petclinic
-          kubectl rollout status deployment/petclinic-backend -n petclinic --timeout=120s
-          kubectl rollout status deployment/petclinic-frontend -n petclinic --timeout=120s
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USER }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          script: |
+            cd /app
+            docker compose pull
+            docker compose up -d
